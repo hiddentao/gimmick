@@ -1,12 +1,7 @@
 var a = function() {
-  switch ((function() {return 'a';})()) {
-    case 1:
-      (function(){})();
-      break;
-    case 2:
-    default:
-      return (function(){})();
-      break;
+  if (b > (function(){ return 7; })()) {
+    return (function() { return b; })();
+  } else if (7 > 8 && (function(){ return 7; })() > 0) {
+    return 9;
   }
 }
-
