@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+"use strict";
+
+var _ = require('lodash'),
+  commander = require('commander'),
+  debug = require('debug')('tracejs-cli'),
+  fs = require('fs'),
+  path = require('path');
+
+
+var rootFolder = path.join(__dirname, '..');
+
+
+// version
+var packageJson = require(path.join(rootFolder, 'package.json'));
+debug('Version: ' + packageJson.version);
+commander.version(packageJson.version);
+
+
+// commands
+var cliFolder = path.join(rootFolder, 'cli'),
+  cliFiles = fs.readdirSync(cliFolder);
+
+_.each(cliFiles, function(cliFile) {
+  debug('Loading command: ' + cliFile);
+
+  var filename = path.basename(cliFile, '.js'),
+    modulePath = path.join(cliFolder, filename);
+
+  var obj = new (require(modulePath))();
+
+  var cmd = commander
+    .command(filename)
+    .description(obj.description)
+    .action(
+      function() {
+        obj.run.apply(obj, arguments);
+      }
+    );
+
+  _.each(obj.options, function(o) {
+    cmd.option.apply(cmd, o);
+  });
+});
+
+
+debug('Parse and dispatch');
+
+commander.parse(process.argv);
