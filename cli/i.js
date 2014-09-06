@@ -1,10 +1,11 @@
 "use strict";
 
 
-var fs = require('fs'),
+var debug = require('debug')('tracejs-cli-i'),
+  fs = require('fs'),
   path = require('path'),
   shell = require('shelljs'),
-  tracejs = require('../lib');
+  Trace = require('../lib').Trace;
 
 
 var Command = module.exports = function() {
@@ -14,17 +15,25 @@ var Command = module.exports = function() {
 
 
 Command.prototype.run = function(fileName) {
+  var trace = new Trace();
+
+  debug('Instrumenting ' + fileName);
+
   var filePath = path.join(process.cwd(), fileName);
 
-  var code = fs.readFileSync(filePath).toString();
+  trace.instrument(filePath);
 
-  var result = tracejs.instrument(code);
+  var result = trace.getCode()[filePath];
+
+  debug('Creating destination folders');
 
   // create destination folder
   var dstFolder = path.join(process.cwd(), 'tracejs-out');
   shell.mkdir('-p', path.join(dstFolder, path.dirname(fileName)));
   var newFilePath = path.join(dstFolder, fileName);
 
-  fs.writeFileSync(newFilePath, result.code);
+  debug('Writing ' + newFilePath);
+
+  fs.writeFileSync(newFilePath, result);
 };
 
