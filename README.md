@@ -5,4 +5,4 @@ Javascript performance tracking
 
 ## LICENSE
 
-MIT - see LICENSE.MD
+Affero GPLv3 - see LICENSE.md
