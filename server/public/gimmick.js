@@ -32,7 +32,7 @@
     var params = "d=" + JSON.stringify(events);
     events = [];
 
-    http.open("POST", serverUrl + '/addEvents', true);
+    http.open("POST", serverUrl + '/newEvents', true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
     http.onreadystatechange = function() {
