@@ -16,7 +16,7 @@ exports.start = function(options) {
   app.use(function(req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", '*');
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");   
-    res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,X-Prototype-Version,X-Cors-Origin,Content-Type,Cache-Control,Pragma,Origin");
+    res.setHeader("Access-Control-Allow-Headers", "X-Gimmick-Id,X-Requested-With,X-Prototype-Version,X-Cors-Origin,Content-Type,Cache-Control,Pragma,Origin");
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Max-Age", "0");  
     next();
@@ -32,17 +32,40 @@ exports.start = function(options) {
     extended: false 
   }))
 
+  // API to add event data
+  app.use(function(req, res, next) {
+    req.clientId = req.query.id;
+    next();
+  });
+
+
+  var instances = {};
+
 
   // API to add event data
-  app.post('/newEvents', function(req, res, next) {
-    if (!req.body.d) {
-      return next(new Error('No data supplied'));
-    }
-
-    logger.debug('new event data');
+  app.post('/register', function(req, res, next) {
+    logger.debug('register: ' + req.clientId);
 
     // tell all clients
-    io.emit('new events', req.body.d);
+    io.emit('new client', {
+      id: req.clientId,
+      details: req.body
+    });
+
+    res.send('ok');
+  });
+
+
+
+  // API to add event data
+  app.post('/events', function(req, res, next) {
+    logger.debug('events for ' + req.clientId);
+
+    // tell all clients
+    io.emit('events', {
+      id: req.clientId,
+      events: req.body.events
+    });
 
     res.send('ok');
   });

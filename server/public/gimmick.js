@@ -1,5 +1,15 @@
 (function() {
 
+  /* api */
+
+  var _Gmk = window._Gmk = {
+    id: Math.random().toString(36).substring(7),
+    events: [],
+    f: function(id, mode) {
+      _Gmk.events.push([id, mode, Date.now()]);          
+    }
+  };
+
   /* get URL of gimmick server */
 
   var scriptTags = document.getElementsByTagName('script');
@@ -16,45 +26,71 @@
 
   var serverUrl = scriptTag.src.substr(0, scriptTag.src.indexOf('/gimmick.js'));
 
-  /* setup loop to push new event data to server */
+  /* ajax POST to server */
 
-  var events = [];
+  var noop = function() {};
 
-  var tellServer;
-  (tellServer = function() {
-    if (!events.length) {
-      return setTimeout(tellServer, 100);
+  var postToServer = function(path, data, cb) {
+    cb = cb || noop;
+
+    var formData = new FormData();
+    for (var k in data) {
+      formData.append(k, data[k]);
     }
 
     var http = new XMLHttpRequest();
-    var url = "/data";
-    
-    var params = "d=" + JSON.stringify(events);
-    events = [];
-
-    http.open("POST", serverUrl + '/newEvents', true);
+    http.open("POST", serverUrl + path + "?id=" + _Gmk.id, true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
     http.onreadystatechange = function() {
       if (4 === http.readyState) {
-        postInProgress = false;
-
         if (200 !== http.status) {
-          console.error('Error posting to Gimmick server', http.responseText);
+          console.error('Gimmick: error posting to server', http.responseText);
+          cb(new Error(http.responseText), http);
+        } else {
+          cb(null, http);
         }
-
-        setTimeout(tellServer, 100);
       }
     }
 
-    http.send(params);
-  })();
-
-
-  /* setup browser window scope methods */
-
-  window.__gmk = function(id, mode) {
-    events.push([id, mode, Date.now()]);
+    http.send(formData);
   };
 
+  /* loop to push new event data to server */
+
+  var sendEventsToServer = function() {
+    if (!_Gmk.events.length) {
+      return setTimeout(sendEventsToServer, 100);
+    }
+
+    postToServer('/events', { events: _Gmk.events}, function() {
+      setTimeout(sendEventsToServer, 100);
+    })
+
+    _Gmk.events = [];
+  };
+
+
+  /* init - tell server about me */
+
+  var keys = [
+    'appName', 'appCodeName', 'appVersion', 'hardwareConcurrency',
+    'language', 'maxTouchPoints', 'platform', 'product',
+    'productSub', 'userAgent', 'vendor', 'vendorSub',
+  ];
+  var meta = {
+    performance: window.performance || {}
+  };
+  keys.forEach(function(k){ meta[k] = navigator[k]; });
+
+  postToServer('/register', meta);
+
+  
+  /* init - event submission loop */
+
+  sendEventsToServer();
+
 })();
+
+
+
