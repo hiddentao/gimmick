@@ -4,7 +4,7 @@
 
 var _ = require('lodash'),
   commander = require('commander'),
-  debug = require('debug')('tracejs-cli'),
+  debug = require('debug')('gimmick-cli'),
   fs = require('fs'),
   path = require('path');
 
@@ -23,10 +23,15 @@ var cliFolder = path.join(rootFolder, 'cli'),
   cliFiles = fs.readdirSync(cliFolder);
 
 _.each(cliFiles, function(cliFile) {
-  debug('Loading command: ' + cliFile);
-
   var filename = path.basename(cliFile, '.js'),
     modulePath = path.join(cliFolder, filename);
+
+  // skip filenames prefixed with _   
+  if ('_' === filename.charAt(0)) {
+    return;
+  }
+
+  debug('Loading command: ' + filename);
 
   var obj = new (require(modulePath))();
 

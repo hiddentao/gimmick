@@ -1,18 +1,23 @@
 {
-  "name": "poirot",
+  "name": "gimmick",
   "version": "0.1.0",
   "description": "Javascript performance tracking",
   "main": "./lib/index.js",
   "bin": {
-    "tracejs": "./bin/tracejs"
+    "gimmick": "./bin/gimmick"
   },
   "dependencies": {
+    "body-parser": "^1.8.1",
     "commander": "^2.3.0",
     "debug": "^2.0.0",
     "escodegen": "^1.4.1",
     "esprima": "^1.2.2",
+    "express": "^4.8.8",
     "lodash": "^2.4.1",
-    "shelljs": "^0.3.0"
+    "log4js": "^0.6.20",
+    "serve-static": "^1.6.1",
+    "shelljs": "^0.3.0",
+    "socket.io": "^1.1.0"
   },
   "devDependencies": {},
   "keywords": [
