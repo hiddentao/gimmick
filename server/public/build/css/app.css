@@ -14103,3 +14103,5 @@ body {
   font-family: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   background-color: #fff; }
 
+header #clientDropdown {
+  padding: 0.2em 0.4em; }

@@ -34,13 +34,10 @@
     cb = cb || noop;
 
     var formData = new FormData();
-    for (var k in data) {
-      formData.append(k, data[k]);
-    }
+    formData.append('data', JSON.stringify(data));
 
     var http = new XMLHttpRequest();
     http.open("POST", serverUrl + path + "?id=" + _Gmk.id, true);
-    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
     http.onreadystatechange = function() {
       if (4 === http.readyState) {

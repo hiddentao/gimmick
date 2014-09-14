@@ -37,14 +37,16 @@ paths.output.fonts = path.join(paths.build, 'fonts')
 
 paths.input.js = 
   app: [
-    path.join(paths.src, 'js', '**', '*.js')
+    path.join(paths.src, 'js', 'app.js')
+    path.join(paths.src, 'js', 'services', '*.js')
+    path.join(paths.src, 'js', 'controllers', '*.js')
   ]
   final: [
-    # path.join(paths.bower, 'socket.io-client', 'socket.io.js')
-    # path.join(paths.bower, 'jquery', 'dist', 'jquery.js')
+    path.join(paths.bower, 'socket.io-client', 'socket.io.js')
+    path.join(paths.bower, 'jquery', 'dist', 'jquery.js')
     path.join(paths.bower, 'angular', 'angular.js')
     path.join(paths.bower, 'angular-route', 'angular-route.js')
-    # path.join(paths.bower, 'semantic-ui', 'build', 'packaged', 'javascript', 'semantic.js')
+    path.join(paths.bower, 'semantic-ui', 'build', 'packaged', 'javascript', 'semantic.js')
     paths.output.ngTemplates
     paths.output.js.app
   ]

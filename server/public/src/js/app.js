@@ -1,15 +1,35 @@
-var app = angular.module('gimmick', [
+angular.module('gimmick', [
   'ngRoute',
   'gimmick.templates',
-]);
+])
+  .config(function($routeProvider) {
+    $routeProvider
+     .when('/', {
+      templateUrl: 'log.html',
+    });
+  })
+  
+  .run(function($rootScope, Target) {
+    // clients
+    $('.ui.dropdown').dropdown();
+    $rootScope.clients = {};
 
-app.controller('HomeCtrl', function($scope) {
-  $scope.data = 'test';
-});
+    // listen for new data
+    var socket = io();
 
-app.config(function($routeProvider) {
-  $routeProvider
-   .when('/', {
-    templateUrl: 'home.html',
+    socket.on('connect', function(){
+      socket.on('disconnect', function(){
+        console.error('Server disconnected');
+      });
+
+      socket.on('new target', function(msg){
+        Target.get(msg.id).setMeta(msg);
+      });
+
+      socket.on('events', function(msg) {
+        Target.get(msg.id).addEvents(msg.events);
+      });
+
+    });
+
   });
-});

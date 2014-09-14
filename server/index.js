@@ -6,7 +6,7 @@ var logger = log4js.getLogger();
 var express = require('express');
 var io = require('socket.io')();
 var serveStatic = require('serve-static');
-var bodyParser = require('body-parser');
+var multipartParser = require('connect-multiparty')();
 var app = express();
 
 
@@ -26,15 +26,9 @@ exports.start = function(options) {
   // static assets
   app.use(serveStatic(path.join(__dirname, 'public', 'build')));
 
-  // request body parsing
-  app.use(bodyParser.urlencoded({ 
-    limit: '16mb',
-    extended: false 
-  }))
-
   // API to add event data
   app.use(function(req, res, next) {
-    req.clientId = req.query.id;
+    req.targetId = req.query.id;
     next();
   });
 
@@ -43,13 +37,13 @@ exports.start = function(options) {
 
 
   // API to add event data
-  app.post('/register', function(req, res, next) {
-    logger.debug('register: ' + req.clientId);
+  app.post('/register', multipartParser, function(req, res, next) {
+    logger.debug('register: ' + req.targetId);
 
     // tell all clients
-    io.emit('new client', {
-      id: req.clientId,
-      details: req.body
+    io.emit('new target', {
+      id: req.targetId,
+      details: JSON.parse(req.body.data)
     });
 
     res.send('ok');
@@ -58,13 +52,13 @@ exports.start = function(options) {
 
 
   // API to add event data
-  app.post('/events', function(req, res, next) {
-    logger.debug('events for ' + req.clientId);
+  app.post('/events', multipartParser, function(req, res, next) {
+    logger.debug('events for ' + req.targetId);
 
     // tell all clients
     io.emit('events', {
-      id: req.clientId,
-      events: req.body.events
+      id: req.targetId,
+      events: JSON.parse(req.body.data).events
     });
 
     res.send('ok');
