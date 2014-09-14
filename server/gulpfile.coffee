@@ -16,92 +16,97 @@ reportError = (err) ->
   gutil.log err
 
 
-paths = {
+paths =
   base: path.join(__dirname, 'public')
-  bower: path.join(__dirname, 'public', 'bower')
-  src: {}
-  dst: {}
-}
 
-paths.dst.js = 
-  app: path.join(paths.base, '.tmp', 'app.js')
-  final: path.join(paths.base, 'app.js')
-paths.dst.css = path.join(paths.base, 'app.css')
-paths.dst.sass = path.join(paths.base, '.tmp', 'app.css')
-paths.dst.ngTemplates = path.join(paths.base, '.tmp', 'ngtemplates.js')
-paths.dst.fonts = path.join(paths.base, 'fonts')
+paths.src = path.join(paths.base, 'src')
+paths.build = path.join(paths.base, 'build')
+paths.tmp = path.join(paths.build, '.tmp')
+paths.bower = path.join(paths.base, 'bower')
 
+paths.output = {}
+paths.input = {}
 
+paths.output.js = 
+  app: path.join(paths.tmp, 'app.js')
+  final: path.join(paths.build, 'js', 'app.js')
+paths.output.css = path.join(paths.build, 'css', 'app.css')
 
-paths.src.base = path.join(__dirname, 'public');
+paths.output.ngTemplates = path.join(paths.tmp, 'ngTemplates.js')
+paths.output.fonts = path.join(paths.build, 'fonts')
 
-paths.src.js = 
+paths.input.js = 
   app: [
-    path.join(paths.base, 'js', '**', '*.js')
+    path.join(paths.src, 'js', '**', '*.js')
   ]
   final: [
-    path.join(paths.bower, 'socket.io', 'socket.io.js')
-    path.join(paths.bower, 'jquery', 'dist', 'jquery.js')
+    # path.join(paths.bower, 'socket.io-client', 'socket.io.js')
+    # path.join(paths.bower, 'jquery', 'dist', 'jquery.js')
     path.join(paths.bower, 'angular', 'angular.js')
-    path.join(paths.bower, 'semantic-ui', 'build', 'packaged', 'javascript', 'semantic.js')
-    paths.dst.js.app
-    paths.dst.ngTemplates
+    path.join(paths.bower, 'angular-route', 'angular-route.js')
+    # path.join(paths.bower, 'semantic-ui', 'build', 'packaged', 'javascript', 'semantic.js')
+    paths.output.ngTemplates
+    paths.output.js.app
   ]
 
-paths.src.sass = path.join(paths.base,  'sass', '**', '*.scss')
-paths.src.css = [
-  paths.dst.sass
-  path.join(paths.bower,  'semantic-ui', 'build', 'packaged', 'css', 'semantic.css')
+paths.input.sass = [
+  path.join(paths.src, 'sass', 'reset.scss')
+  path.join(paths.bower, 'semantic-ui', 'build', 'packaged', 'css', 'semantic.css')
+  path.join(paths.src, 'sass', '**', '*.scss')
 ]
-paths.src.ngTemplates = path.join(paths.base,  'templates', '**', '*.html')
-paths.src.fonts = path.join(paths.bower, 'semantic-ui', 'build', 'packaged', 'fonts', 'basic.*')
+
+paths.input.ngTemplates = path.join(paths.src,  'ngTemplates', '**', '*.html')
+paths.input.fonts = path.join(paths.bower, 'semantic-ui', 'build', 'packaged', 'fonts', 'basic*')
+
+paths.watch =
+  js: paths.input.js
+  css: paths.input.sass
 
 
 
-
-gulp.task 'sass', ->
-  gulp.src paths.src.sass
+gulp.task 'css', ->
+  gulp.src paths.input.sass
     .pipe sass(
       onError: reportError
     )
-    .pipe concat( path.basename(paths.dst.sass) )
-    .pipe gulp.dest( path.dirname(paths.dst.sass) )
-
-
-gulp.task 'css', ['sass'], ->
-  gulp.src paths.src.css
     # .pipe minifyCss()
-    .pipe concat( path.basename(paths.dst.css) )
-    .pipe gulp.dest( path.dirname(paths.dst.css) )
+    .pipe concat( path.basename(paths.output.css) )
+    .pipe gulp.dest( path.dirname(paths.output.css) )
 
 
 gulp.task 'fonts', ->
-  gulp.src paths.src.fonts
-    .pipe gulp.dest(paths.dst.fonts)
+  gulp.src paths.input.fonts
+    .pipe gulp.dest(paths.output.fonts)
 
 
 gulp.task 'ng-templates', ->
-  gulp.src paths.src.ngTemplates
+  gulp.src paths.input.ngTemplates
     .pipe templateCache({
       module: 'gimmick.templates'
+      standalone: true
     })
-    .pipe gulp.dest(paths.dst.ngTemplates)
+    .pipe concat( path.basename(paths.output.ngTemplates) )
+    .pipe gulp.dest( path.dirname(paths.output.ngTemplates) )
 
 
 gulp.task 'js-app', ['ng-templates'], ->
-  gulp.src paths.src.js.app
+  gulp.src paths.input.js.app
     .pipe jshint()
     .pipe jshint.reporter('default')
-    .pipe concat( path.basename(paths.dst.js.app) )
-    .pipe gulp.dest( path.dirname(paths.dst.js.app) )
+    .pipe concat( path.basename(paths.output.js.app) )
+    .pipe gulp.dest( path.dirname(paths.output.js.app) )
 
 
 gulp.task 'js', ['js-app'], ->
-  gulp.src paths.src.js.final
-    .pipe uglify()
-    .pipe concat( path.basename(paths.dst.js.final) )
-    .pipe gulp.dest( path.dirname(paths.dst.js.final) )
+  gulp.src paths.input.js.final
+    # .pipe uglify()
+    .pipe concat( path.basename(paths.output.js.final) )
+    .pipe gulp.dest( path.dirname(paths.output.js.final) )
 
 
 gulp.task 'default', ['fonts', 'css', 'js']
+
+gulp.task 'watch', ['default'], ->
+  gulp.watch paths.watch.css, ['css']
+  gulp.watch paths.watch.js, ['js']
 

@@ -24,7 +24,7 @@ exports.start = function(options) {
 
 
   // static assets
-  app.use(serveStatic(path.join(__dirname, 'public')));
+  app.use(serveStatic(path.join(__dirname, 'public', 'build')));
 
   // request body parsing
   app.use(bodyParser.urlencoded({ 

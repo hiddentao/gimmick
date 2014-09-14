@@ -26,9 +26,10 @@
     "tests"
   ],
   "devDependencies": {
-    "socket.io": "~1.1.0",
     "jquery": "~2.1.1",
-    "semantic-ui": "~0.19.1",
-    "angular": "~1.2.23"
+    "angular": "~1.2.23",
+    "semantic-ui": "~0.19.2",
+    "socket.io-client": "~1.1.0",
+    "angular-route": "~1.2.24"
   }
 }
