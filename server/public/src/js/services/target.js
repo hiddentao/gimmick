@@ -15,8 +15,9 @@ angular.module('gimmick')
     Target.prototype.setMeta = function(meta) {
       this.id = meta.id;
       this.details = meta.details;
+      this.description = this.id + ' - ' + this.details.platform + ' + ' + this.details.product + '[' + this.details.appCodeName + ']';
 
-      $rootScope.$broadcast('new target', this);
+      $rootScope.$broadcast('targets updated', this);
     };
 
 

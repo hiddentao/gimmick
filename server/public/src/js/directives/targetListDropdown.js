@@ -7,12 +7,19 @@ angular.module('gimmick')
         link: function(scope, element) {
           $('.dropdown', element).dropdown();
         },
-        controller: function($scope, $rootScope) {
-          $scope.targets = {};
+        controller: function($scope, $element, $rootScope, Target) {
+          $rootScope.$on('targets updated', function(e, t) {
+            $scope.targets = Target.getAll();
+            $scope.$apply();
 
-          $rootScope.$on('new target', function(e, t) {
-            console.log(t);
-            $scope.targets[t.id] = t;
+            setTimeout(function() {
+              $('.dropdown', $element).dropdown();
+
+              var ids = Object.keys($scope.targets);
+              if (1 === ids.length) {
+                $('.dropdown', $element).dropdown('set selected', ids[0]);
+              }
+            }, 100);
           });
         }
     };

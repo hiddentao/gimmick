@@ -50512,17 +50512,21 @@ $.fn.video.settings = {
 
 })( jQuery, window , document );
 
-angular.module("gimmick.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("log.html","<div ng-controller=\"LogCtrl\">\n  <div class=\"ui very relaxed divided list\">\n    <div ng-repeat=\"item in items\" class=\"item\">\n      <div class=\"content\">\n        <a class=\"header\">Bla Bla Title</a>\n        <div class=\"ui segment\">\n          bla bla\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n\n");
-$templateCache.put("directives/target-list-dropdown.html","<div class=\"ui selection dropdown targetDropdown\">\n  <div class=\"default text\">Target</div>\n  <i class=\"icon basic down triangle\"></i>\n  <div class=\"menu\">\n    <div ng-repeat=\"(id, t) in targets\" class=\"item\" data-value=\"{{ id }}\">{{ id }}</div>\n  </div>\n</div>\n\n");}]);
+angular.module("gimmick.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("home.html","<div id=\"intro\">\n  <p>Access your instrumented app in a browser to see data start to show up here!</p>\n</div>\n");
+$templateCache.put("log.html","<div ng-controller=\"LogCtrl\">\n  <div class=\"ui very relaxed divided list\">\n    <div ng-repeat=\"item in items\" class=\"item\">\n      <div class=\"content\">\n        <a class=\"header\">Bla Bla Title</a>\n        <div class=\"ui segment\">\n          bla bla\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n\n");
+$templateCache.put("directives/target-list-dropdown.html","<div class=\"ui selection dropdown targetDropdown\">\n  <div class=\"default text\">Target</div>\n  <i class=\"icon basic down triangle\"></i>\n  <div class=\"menu\">\n    <div ng-repeat=\"(id, t) in targets\" class=\"item\" data-value=\"{{ id }}\">{{ t.description }}</div>\n  </div>\n</div>\n\n");}]);
 angular.module('gimmick', [
   'ngRoute',
   'gimmick.templates',
 ])
   .config(function($routeProvider) {
     $routeProvider
-     .when('/', {
-      templateUrl: 'log.html',
-    });
+      .when('/', {
+        templateUrl: 'home.html',
+      })
+      .when('/log/:id', {
+        templateUrl: 'log.html',
+      });
   })
   
   .run(function($rootScope, Target) {
@@ -50563,8 +50567,9 @@ angular.module('gimmick')
     Target.prototype.setMeta = function(meta) {
       this.id = meta.id;
       this.details = meta.details;
+      this.description = this.id + ' - ' + this.details.platform + ' + ' + this.details.product + '[' + this.details.appCodeName + ']';
 
-      $rootScope.$broadcast('new target', this);
+      $rootScope.$broadcast('targets updated', this);
     };
 
 
@@ -50597,12 +50602,19 @@ angular.module('gimmick')
         link: function(scope, element) {
           $('.dropdown', element).dropdown();
         },
-        controller: function($scope, $rootScope) {
-          $scope.targets = {};
+        controller: function($scope, $element, $rootScope, Target) {
+          $rootScope.$on('targets updated', function(e, t) {
+            $scope.targets = Target.getAll();
+            $scope.$apply();
 
-          $rootScope.$on('new target', function(e, t) {
-            console.log(t);
-            $scope.targets[t.id] = t;
+            setTimeout(function() {
+              $('.dropdown', $element).dropdown();
+
+              var ids = Object.keys($scope.targets);
+              if (1 === ids.length) {
+                $('.dropdown', $element).dropdown('set selected', ids[0]);
+              }
+            }, 100);
           });
         }
     };

@@ -4,9 +4,12 @@ angular.module('gimmick', [
 ])
   .config(function($routeProvider) {
     $routeProvider
-     .when('/', {
-      templateUrl: 'log.html',
-    });
+      .when('/', {
+        templateUrl: 'home.html',
+      })
+      .when('/log/:id', {
+        templateUrl: 'log.html',
+      });
   })
   
   .run(function($rootScope, Target) {
