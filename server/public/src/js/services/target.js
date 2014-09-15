@@ -1,8 +1,8 @@
 angular.module('gimmick')
 
-  .factory('Target', function() {
+  .factory('Target', function($rootScope) {
     
-    var Target = function(meta) {
+    var Target = function() {
       this._displayItems = [];
     };
 
@@ -15,6 +15,8 @@ angular.module('gimmick')
     Target.prototype.setMeta = function(meta) {
       this.id = meta.id;
       this.details = meta.details;
+
+      $rootScope.$broadcast('new target', this);
     };
 
 
@@ -31,8 +33,9 @@ angular.module('gimmick')
           targets[targetId] = new Target();
         }
         return targets[targetId];
+      },
+      getAll: function() {
+        return targets;
       }
     };
   });
-
-

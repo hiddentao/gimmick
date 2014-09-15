@@ -50512,7 +50512,8 @@ $.fn.video.settings = {
 
 })( jQuery, window , document );
 
-angular.module("gimmick.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("log.html","<div ng-controller=\"LogCtrl\">\n  <div class=\"ui very relaxed divided list\">\n    <div ng-repeat=\"item in items\" class=\"item\">\n      <div class=\"content\">\n        <a class=\"header\">Bla Bla Title</a>\n        <div class=\"ui segment\">\n          bla bla\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n\n");}]);
+angular.module("gimmick.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("log.html","<div ng-controller=\"LogCtrl\">\n  <div class=\"ui very relaxed divided list\">\n    <div ng-repeat=\"item in items\" class=\"item\">\n      <div class=\"content\">\n        <a class=\"header\">Bla Bla Title</a>\n        <div class=\"ui segment\">\n          bla bla\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n\n");
+$templateCache.put("directives/target-list-dropdown.html","<div class=\"ui selection dropdown targetDropdown\">\n  <div class=\"default text\">Target</div>\n  <i class=\"icon basic down triangle\"></i>\n  <div class=\"menu\">\n    <div ng-repeat=\"(id, t) in targets\" class=\"item\" data-value=\"{{ id }}\">{{ id }}</div>\n  </div>\n</div>\n\n");}]);
 angular.module('gimmick', [
   'ngRoute',
   'gimmick.templates',
@@ -50525,10 +50526,6 @@ angular.module('gimmick', [
   })
   
   .run(function($rootScope, Target) {
-    // clients
-    $('.ui.dropdown').dropdown();
-    $rootScope.clients = {};
-
     // listen for new data
     var socket = io();
 
@@ -50551,9 +50548,9 @@ angular.module('gimmick', [
 
 angular.module('gimmick')
 
-  .factory('Target', function() {
+  .factory('Target', function($rootScope) {
     
-    var Target = function(meta) {
+    var Target = function() {
       this._displayItems = [];
     };
 
@@ -50566,6 +50563,8 @@ angular.module('gimmick')
     Target.prototype.setMeta = function(meta) {
       this.id = meta.id;
       this.details = meta.details;
+
+      $rootScope.$broadcast('new target', this);
     };
 
 
@@ -50582,12 +50581,32 @@ angular.module('gimmick')
           targets[targetId] = new Target();
         }
         return targets[targetId];
+      },
+      getAll: function() {
+        return targets;
       }
     };
   });
 
+angular.module('gimmick')
+  
+  .directive('targetListDropdown', function() {
+    return {
+        restrict: 'E',
+        templateUrl: 'directives/target-list-dropdown.html',
+        link: function(scope, element) {
+          $('.dropdown', element).dropdown();
+        },
+        controller: function($scope, $rootScope) {
+          $scope.targets = {};
 
-
+          $rootScope.$on('new target', function(e, t) {
+            console.log(t);
+            $scope.targets[t.id] = t;
+          });
+        }
+    };
+  });
 angular.module('gimmick')
 
   .controller('LogCtrl', function($scope, $rootScope) {

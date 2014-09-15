@@ -8,14 +8,8 @@
     <div class="item">
       Gimmick 
     </div>
-    <div class="item" href="/">
-      <div class="ui selection dropdown" id="clientDropdown">
-        <div class="default text">Client</div>
-        <i class="icon basic down triangle"></i>
-        <div class="menu">
-          <div ng-repeat="client in clients" class="item" data-value="">{{ client.id }}</div>
-        </div>
-      </div>
+    <div class="item">
+      <target-list-dropdown></target-list-dropdown>
     </div>
 
   </header>

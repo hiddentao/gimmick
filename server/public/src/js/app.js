@@ -10,10 +10,6 @@ angular.module('gimmick', [
   })
   
   .run(function($rootScope, Target) {
-    // clients
-    $('.ui.dropdown').dropdown();
-    $rootScope.clients = {};
-
     // listen for new data
     var socket = io();
 

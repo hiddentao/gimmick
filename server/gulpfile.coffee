@@ -39,6 +39,7 @@ paths.input.js =
   app: [
     path.join(paths.src, 'js', 'app.js')
     path.join(paths.src, 'js', 'services', '*.js')
+    path.join(paths.src, 'js', 'directives', '*.js')
     path.join(paths.src, 'js', 'controllers', '*.js')
   ]
   final: [
@@ -61,7 +62,8 @@ paths.input.ngTemplates = path.join(paths.src,  'ngTemplates', '**', '*.html')
 paths.input.fonts = path.join(paths.bower, 'semantic-ui', 'build', 'packaged', 'fonts', 'basic*')
 
 paths.watch =
-  js: paths.input.js
+  ngTemplates: paths.input.ngTemplates
+  js: paths.input.js.app
   css: paths.input.sass
 
 
@@ -111,4 +113,5 @@ gulp.task 'default', ['fonts', 'css', 'js']
 gulp.task 'watch', ['default'], ->
   gulp.watch paths.watch.css, ['css']
   gulp.watch paths.watch.js, ['js']
+  gulp.watch paths.watch.ngTemplates, ['js']
 
